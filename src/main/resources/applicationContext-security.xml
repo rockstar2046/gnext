@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/security 
+    http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+
+
+	<!-- open source -->
+	<http use-expressions="true" pattern="/css/**" security="none" />
+	<http use-expressions="true" pattern="/images/**" security="none" />
+	<http use-expressions="true" pattern="/js/**" security="none" />
+	<http use-expressions="true" pattern="/static/**" security="none" />
+	<http use-expressions="true" pattern="/login" security="none" />
+	<http use-expressions="true" pattern="/**/jcaptcha" security="none" />
+	<http use-expressions="true" pattern="/druid/*" security="none" />
+	<!-- open api -->
+	<http use-expressions="true" pattern="/api/**" security="none" />
+
+
+	<!-- Resource configuration -->
+	<http use-expressions="true" entry-point-ref="authenticationEntryPoint">
+
+		<!-- before default authentication intercepter -->
+		<custom-filter ref="filterSecurityInterceptor" before="FILTER_SECURITY_INTERCEPTOR" />
+
+
+		<!-- Resolve Session locked filter -->
+		<custom-filter ref="concurrentSessionFilter" position="CONCURRENT_SESSION_FILTER" />
+
+
+
+		<!-- Login authentication filter -->
+		<custom-filter ref="validateCodeAuthenticationFilter"
+			position="FORM_LOGIN_FILTER" />
+
+		<!-- Deny filter -->
+		<custom-filter ref="exceptionTranslationFilter" after="EXCEPTION_TRANSLATION_FILTER" />
+
+
+
+		<session-management
+			session-authentication-strategy-ref="sessionAuthenticationStrategy">
+		</session-management>
+
+
+		<!-- Logout page -->
+		<logout logout-success-url="/logout" logout-url="/security_logout" />
+		<!-- druid -->
+      <intercept-url pattern="/druid/*" access="getAuthentication.principal.username eq 'root'"/>
+		
+
+	</http>
+
+
+	<!-- Authentication manager,provide to filterSecurityInterceptor filter -->
+	<authentication-manager alias="authenticationManager">
+		<authentication-provider ref="daoAuthenticationProvider" />
+
+	</authentication-manager>
+
+	<!-- DAO Authentication provider -->
+	<beans:bean id="daoAuthenticationProvider"
+		class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="hideUserNotFoundExceptions"
+			value="false" />
+		<beans:property name="userDetailsService" ref="myUserDetailsService" />
+	</beans:bean>
+
+	<!-- Define UserDetailsService bean -->
+	<beans:bean id="myUserDetailsService"
+		class="com.rockagen.gnext.service.spring.security.extension.BasicJdbcDaoImpl">
+		<!-- Custom select query -->
+		<beans:property name="usersByUsernameQuery"
+			value="SELECT USER_NAME AS username, USER_PASSWORD as password,ENABLED as enabled,
+						NICK_NAME,EMAIL,LATEST_IP from AUTH_USER where USER_NAME=?" />
+		<beans:property name="authoritiesByUsernameQuery"
+			value="SELECT u.USER_NAME as username,r.NAME as authority
+                                             from AUTH_USER u
+                                             join AUTH_USER_ROLE ur
+                                               on u.ID=ur.USER_ID
+                                             join AUTH_ROLE r
+                                               on r.ID=ur.ROLE_ID
+                                            where u.USER_NAME=?" />
+		<!-- Define dataSource -->
+		<beans:property name="dataSource" ref="myDataSource" />
+	</beans:bean>
+
+	<!-- Authentication entry filter ,extension captcha validate -->
+
+	<beans:bean id="validateCodeAuthenticationFilter"
+		class="com.rockagen.gnext.service.spring.security.extension.CaptchaUsernamePasswordAuthenticationFilter">
+		<beans:property name="filterProcessesUrl" value="/security_login" />
+		<beans:property name="authenticationSuccessHandler"
+			ref="loginAuthenticationSuccessHandler" />
+		<!-- Extend WebAuthenticationDetails obtain the real ip address -->
+		<beans:property name="authenticationDetailsSource" ref="authenticationDetailsSource" />
+		<beans:property name="authenticationFailureHandler"
+			ref="loginAuthenticationFailureHandler" />
+		<beans:property name="sessionAuthenticationStrategy"
+			ref="sessionAuthenticationStrategy" />
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+		<beans:property name="usernameParameter" value="j_username" />
+		<beans:property name="passwordParameter" value="j_password" />
+		<beans:property name="captchaParameter" value="j_captcha" />
+		<beans:property name="allowEmptyCaptcha" value="true" />
+
+	</beans:bean>
+
+	<!-- Authentication success handler -->
+	<beans:bean id="loginAuthenticationSuccessHandler"
+		class="com.rockagen.gnext.service.spring.security.extension.BasicRequestAwareAuthenticationSuccessHandler">
+		<beans:property name="defaultTargetUrl" value="/index"></beans:property>
+		<beans:property name="alwaysUseDefaultTargetUrl" value="true"></beans:property>
+		<beans:property name="authUserServ" ref="authUserServ"></beans:property>
+	</beans:bean>
+
+	<!-- Authentication failure handler -->
+	<beans:bean id="loginAuthenticationFailureHandler"
+		class="com.rockagen.gnext.service.spring.security.extension.BasicUrlAuthenticationFailureHandler">
+		<beans:property name="defaultFailureUrl" value="/login"></beans:property>
+		<beans:property name="authUserServ" ref="authUserServ"></beans:property>
+		<beans:property name="usernameParameter" value="j_username"></beans:property>
+	</beans:bean>
+
+	<!-- Obtain web detail resource (obtain the real ip address) -->
+	<beans:bean id="authenticationDetailsSource"
+		class="com.rockagen.gnext.service.spring.security.extension.BasicWebAuthenticationDetailsSource">
+	</beans:bean>
+
+	<!-- Login form entry point -->
+	<beans:bean id="authenticationEntryPoint"
+		class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<beans:constructor-arg name="loginFormUrl"
+			value="/login" />
+	</beans:bean>
+
+	<!-- Deny access filter -->
+	<beans:bean id="exceptionTranslationFilter"
+		class="org.springframework.security.web.access.ExceptionTranslationFilter">
+		<beans:constructor-arg name="authenticationEntryPoint"
+			ref="authenticationEntryPoint" />
+		<beans:property name="accessDeniedHandler" ref="accessDeniedHandler" />
+	</beans:bean>
+
+	<!-- Configuration deny page -->
+	<beans:bean id="accessDeniedHandler"
+		class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+		<beans:property name="errorPage" value="/static/403.html" />
+	</beans:bean>
+
+
+
+	<!-- FILTER_SECURITY_INTERCEPTOR implementation -->
+
+	<beans:bean id="filterSecurityInterceptor"
+		class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<beans:property name="securityMetadataSource" ref="securityMetadataSource" />
+		<beans:property name="accessDecisionManager" ref="accessDecisionManager" />
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+	</beans:bean>
+
+	<!-- Implementation of the access Decision, use "AffirmativeBased",as long 
+		as you meet one of the permissions,grant the privileges -->
+	<beans:bean id="accessDecisionManager"
+		class="org.springframework.security.access.vote.AffirmativeBased">
+		<beans:constructor-arg name="decisionVoters">
+			<beans:list>
+				<!-- Using RoleVoter to voter , NOTE: "spring security" has a specific 
+					prefix -->
+				<beans:bean class="org.springframework.security.access.vote.RoleVoter">
+					<!-- Role prefix, here use "ROLE_" -->
+					<beans:property name="rolePrefix" value="ROLE_" />
+				</beans:bean>
+				<!-- Votes if a ConfigAttribute.getAttribute() of IS_AUTHENTICATED_FULLY 
+					or IS_AUTHENTICATED_REMEMBERED or IS_AUTHENTICATED_ANONYMOUSLY is present. 
+					This list is in order of most strict checking to least strict checking. -->
+				<!-- See org.springframework.security.access.vote.AuthenticatedVoter -->
+				<beans:bean
+					class="org.springframework.security.access.vote.AuthenticatedVoter" />
+			</beans:list>
+		</beans:constructor-arg>
+	</beans:bean>
+
+	<!-- Define resource privileges,Note: this bean is not a single -->
+	<beans:bean id="securityMetadataSource"
+		class="com.rockagen.gnext.service.spring.security.extension.JdbcFilterInvocationSecurityMetadataSourceFactoryBean">
+		<beans:property name="dataSource" ref="myDataSource" />
+		<beans:property name="resourceQuery"
+			value="
+            select re.RES_URL,r.NAME
+              from AUTH_ROLE r
+              join AUTH_RES_ROLE rr
+                on r.ID=rr.ROLE_ID
+              join AUTH_RES re
+                on re.ID=rr.RES_ID
+          order by re.RES_PRIORITY asc
+        " />
+	</beans:bean>
+
+	<!-- Current sesson filter implementation set expire url -->
+	<beans:bean id="concurrentSessionFilter"
+		class="org.springframework.security.web.session.ConcurrentSessionFilter">
+
+		 <beans:constructor-arg name="sessionRegistry"
+			ref="sessionRegistry" />
+
+		<beans:constructor-arg name="expiredUrl" value="/login" />
+		<!-- <beans:property name="expiredUrl" value="/login"/> -->
+	</beans:bean>
+
+	<beans:bean id="sessionRegistry"
+		class="org.springframework.security.core.session.SessionRegistryImpl" />
+
+	<!-- Define session authentication strategy manager implementation -->
+	<!-- Extend for spring security when turned off the browser with do not 
+		logout case can not login -->
+	<beans:bean id="sessionAuthenticationStrategy"
+		class="com.rockagen.gnext.service.spring.security.extension.BasicConcurrentSessionControlStrategy">
+		 <beans:constructor-arg name="sessionRegistry"
+			ref="sessionRegistry" /> 
+		<beans:property name="maximumSessions" value="1" />
+		<beans:property name="maxInactiveInterval" value="20" /><!-- 
+			minutes -->
+		<beans:property name="exceptionIfMaximumExceeded"
+			value="false" />
+	</beans:bean>
+
+	<!-- Define refresh resource privileges (refreshReSourceRole.refresh()) -->
+	<beans:bean id="refreshReSourceRole"
+		class="com.rockagen.gnext.service.spring.security.extension.BasicRefreshMetadataSource">
+		<beans:property name="servletContext" ref="servletContext" />
+	</beans:bean>
+
+	<!-- Define SeervletContext -->
+	<beans:bean id="servletContext"
+		class="org.springframework.web.context.support.ServletContextFactoryBean" />
+
+	<!-- Define spring exception International tips -->
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<beans:property name="basename"
+			value="classpath:com/rockagen/gnext/service/spring/security/messages" />
+	</beans:bean>
+
+</beans:beans>
