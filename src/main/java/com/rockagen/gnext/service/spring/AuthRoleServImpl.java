@@ -15,11 +15,8 @@
  */
 package com.rockagen.gnext.service.spring;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
-import com.rockagen.gnext.dao.Hibernate4GenericDao;
 import com.rockagen.gnext.po.AuthRole;
 import com.rockagen.gnext.service.AuthRoleServ;
 
@@ -29,22 +26,4 @@ import com.rockagen.gnext.service.AuthRoleServ;
  */
 @Service("authRoleServ")
 public class AuthRoleServImpl extends QueryObjectGenericServImpl<AuthRole, Long> implements AuthRoleServ{
-
-	private Hibernate4GenericDao<AuthRole, Long> authRoleDao;
-	
-	
-	@Override
-	protected Hibernate4GenericDao<AuthRole, Long> getHibernate4GenericDao() {
-		return authRoleDao;
-	}
-	
-	@Resource
-	public void setAuthRoleDao(Hibernate4GenericDao<AuthRole, Long> authRoleDao) {
-		this.authRoleDao = authRoleDao;
-	}
-
-
-
-	
-
 }

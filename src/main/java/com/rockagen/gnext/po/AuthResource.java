@@ -15,8 +15,8 @@
  */
 package com.rockagen.gnext.po;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -67,7 +67,7 @@ public class AuthResource{
 	@ManyToMany(cascade = CascadeType.REFRESH)
 	@JoinTable(name = "AUTH_RES_ROLE", inverseJoinColumns = @JoinColumn(name = "ROLE_ID"), joinColumns = @JoinColumn(name = "RES_ID"))
 	@OrderBy("ID DESC")
-	private HashSet<AuthRole> roles = new LinkedHashSet<AuthRole>();
+	private Set<AuthRole> roles = new LinkedHashSet<AuthRole>();
 	
 	@Version
 	private Long version;
@@ -169,7 +169,7 @@ public class AuthResource{
 	 * 
 	 * @return the roles
 	 */
-	public HashSet<AuthRole> getRoles() {
+	public Set<AuthRole> getRoles() {
 		return roles;
 	}
 
@@ -179,7 +179,7 @@ public class AuthResource{
 	 * @param roles
 	 *            the new roles
 	 */
-	public void setRoles(HashSet<AuthRole> roles) {
+	public void setRoles(Set<AuthRole> roles) {
 		this.roles = roles;
 	}
 

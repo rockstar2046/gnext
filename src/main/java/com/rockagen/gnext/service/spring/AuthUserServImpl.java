@@ -19,64 +19,45 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
 import com.rockagen.commons.util.CommUtil;
-import com.rockagen.gnext.dao.Hibernate4GenericDao;
 import com.rockagen.gnext.po.AuthUser;
 import com.rockagen.gnext.qo.QueryObject;
 import com.rockagen.gnext.service.AuthUserServ;
 
 /**
  * Implementation of the <code>AuthUserServ</code> interface
+ * 
  * @author RA
  */
 @Service("authUserServ")
-public class AuthUserServImpl extends QueryObjectGenericServImpl<AuthUser, Long> implements AuthUserServ{
+public class AuthUserServImpl extends
+		QueryObjectGenericServImpl<AuthUser, Long> implements AuthUserServ {
 
-	private Hibernate4GenericDao<AuthUser, Long> authUserDao;
-	
 	@Override
-	public void passwd(final Long id,final String newPass){
-		AuthUser po=authUserDao.get(id);
-		if(po!=null){
+	public void passwd(final Long id, final String newPass) {
+		AuthUser po = super.getGenericDao().get(id);
+		if (po != null) {
 			po.setPassWord(newPass);
 		}
-		
+
 	}
-	
+
 	@Override
 	public AuthUser load(String account) {
-		if(CommUtil.isBlank(account)){
+		if (CommUtil.isBlank(account)) {
 			return null;
 		}
-		QueryObject qo=new QueryObject();
+		QueryObject qo = new QueryObject();
 		qo.setSql("from AuthUser o where o.userName=:username");
-		final Map<String, Object> map=new HashMap<String, Object>();
+		final Map<String, Object> map = new HashMap<String, Object>();
 		map.put("username", account);
 		qo.setMap(map);
-		List<AuthUser> list=find(qo);
-		if(list==null || list.isEmpty()){
+		List<AuthUser> list = find(qo);
+		if (list == null || list.isEmpty()) {
 			return null;
 		}
 		return list.get(0);
 	}
-	
-	
-	@Override
-	protected Hibernate4GenericDao<AuthUser, Long> getHibernate4GenericDao() {
-		return authUserDao;
-	}
-	
-	@Resource
-	public void setAuthUserDao(Hibernate4GenericDao<AuthUser, Long> authUserDao) {
-		this.authUserDao = authUserDao;
-	}
-
-
-
-	
-
 }

@@ -16,9 +16,9 @@
 package com.rockagen.gnext.po;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -77,7 +77,7 @@ public class AuthUser{
 	@ManyToMany(cascade = CascadeType.MERGE)
 	@JoinTable(name = "AUTH_USER_ROLE", inverseJoinColumns = @JoinColumn(name = "ROLE_ID"), joinColumns = @JoinColumn(name = "USER_ID"))
 	@OrderBy("ID DESC")
-	private HashSet<AuthRole> roles = new LinkedHashSet<AuthRole>();
+	private Set<AuthRole> roles = new LinkedHashSet<AuthRole>();
 
 	/** The error_count. */
 	@Column(name = "ERROR_COUNT", length = 1, nullable = true)
@@ -232,7 +232,7 @@ public class AuthUser{
 	 * 
 	 * @return the roles
 	 */
-	public HashSet<AuthRole> getRoles() {
+	public Set<AuthRole> getRoles() {
 		return roles;
 	}
 
@@ -242,7 +242,7 @@ public class AuthUser{
 	 * @param roles
 	 *            the new roles
 	 */
-	public void setRoles(HashSet<AuthRole> roles) {
+	public void setRoles(Set<AuthRole> roles) {
 		this.roles = roles;
 	}
 

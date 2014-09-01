@@ -2,6 +2,10 @@ description = 'gnext'
 
 repositories {
 	mavenCentral()
+	maven{
+		url "https://oss.sonatype.org/content/repositories/sourceforge-releases"
+	}
+	
 }
 
 apply plugin: 'java'

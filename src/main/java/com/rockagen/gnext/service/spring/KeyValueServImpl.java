@@ -17,11 +17,8 @@ package com.rockagen.gnext.service.spring;
 
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.springframework.stereotype.Service;
 
-import com.rockagen.gnext.dao.Hibernate4GenericDao;
 import com.rockagen.gnext.po.KeyValue;
 import com.rockagen.gnext.qo.QueryObject;
 import com.rockagen.gnext.service.KeyValueServ;
@@ -33,30 +30,10 @@ import com.rockagen.gnext.service.KeyValueServ;
 @Service("keyValueServ")
 public class KeyValueServImpl extends QueryObjectGenericServImpl<KeyValue,Long> implements KeyValueServ{
 	
-	private Hibernate4GenericDao<KeyValue, Long> keyValueDao;
-
-
-	@Override
-	protected Hibernate4GenericDao<KeyValue, Long> getHibernate4GenericDao() {
-		return keyValueDao;
-	}
-	
 	@Override
 	public List<KeyValue> findNoPersist() {
 		QueryObject qo=new QueryObject();
 		qo.setSql("from KeyValue o where o.persist=0");
 		return find(qo);
 	}
-	
-	@Resource
-	public void setKeyValueDao(Hibernate4GenericDao<KeyValue, Long> keyValueDao) {
-		this.keyValueDao = keyValueDao;
-	}
-
-
-
-
-
-
-
 }

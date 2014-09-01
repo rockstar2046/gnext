@@ -15,13 +15,13 @@
  */
 package com.rockagen.gnext.test;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -142,15 +142,16 @@ public class ServiceTest {
 	public void testAuthUserServ() {
 		//AuthUser a = authUserServ.load("root");
 		QueryObject qp=new QueryObject();
-//		qp.setSql("select id,email from AuthUser where id<?");
-//		qp.setArgs(new Object[]{new Long(1)});
+		qp.setSql("from AuthUser where id< ?");
+//		qp.setSql("select id,email from AuthUser where id< ?0");
+		qp.setArgs(new Object[]{new Long(10)});
 //		qp.setSql("select id,email from AuthUser where id<:id");
 //		Map<String, Object> map=new HashMap<String, Object>();
 //		map.put("id", 10L);
 //		qp.setMap(map);
-		DetachedCriteria dc=qp.generateDetachedCriteria(AuthUser.class);
-		dc.add(Restrictions.lt("id", 10L));
-		qp.setDetachedCriteria(dc);
+//		DetachedCriteria dc=qp.generateDetachedCriteria(AuthUser.class);
+//		dc.add(Restrictions.lt("id", 10L));
+//		qp.setDetachedCriteria(dc);
 		List<AuthUser> a = authUserServ.find(qp);
 		System.out.println(a.get(0));
 	}

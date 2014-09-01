@@ -15,7 +15,6 @@
  */
 package com.rockagen.gnext.po;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -57,17 +56,17 @@ public class AuthRole {
 	/** The users. */
 	@ManyToMany(cascade = CascadeType.MERGE, mappedBy = "roles", fetch = FetchType.LAZY)
 	@OrderBy("ID DESC")
-	private HashSet<AuthUser> users = new LinkedHashSet<AuthUser>();
+	private Set<AuthUser> users = new LinkedHashSet<AuthUser>();
 
 	/** The ressources . */
 	@ManyToMany(cascade = CascadeType.MERGE, mappedBy = "roles", fetch = FetchType.LAZY)
 	@OrderBy("ID DESC")
-	private HashSet<AuthResource> res = new LinkedHashSet<AuthResource>();
+	private Set<AuthResource> res = new LinkedHashSet<AuthResource>();
 
 	/** The desc. */
-	@Column(name = "DESCRIPTION", length =512, nullable = true)
+	@Column(name = "DESCRIPTION", length = 512, nullable = true)
 	private String description;
-	
+
 	@Version
 	private Long version;
 
@@ -80,7 +79,7 @@ public class AuthRole {
 	 *            the src
 	 */
 	public void copy(AuthRole src) {
-		
+
 		description = src.getDescription();
 		name = src.getName();
 	}
@@ -121,7 +120,7 @@ public class AuthRole {
 	 * @param users
 	 *            the new users
 	 */
-	public void setUsers(HashSet<AuthUser> users) {
+	public void setUsers(Set<AuthUser> users) {
 		this.users = users;
 	}
 
@@ -130,7 +129,7 @@ public class AuthRole {
 	 * 
 	 * @return the res
 	 */
-	public HashSet<AuthResource> getRes() {
+	public Set<AuthResource> getRes() {
 		return res;
 	}
 
@@ -140,7 +139,7 @@ public class AuthRole {
 	 * @param ress
 	 *            the new res
 	 */
-	public void setRes(HashSet<AuthResource> res) {
+	public void setRes(Set<AuthResource> res) {
 		this.res = res;
 	}
 
