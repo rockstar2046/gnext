@@ -41,6 +41,7 @@ import com.rockagen.gnext.service.AuthResourceServ;
 import com.rockagen.gnext.service.AuthRoleServ;
 import com.rockagen.gnext.service.AuthUserServ;
 import com.rockagen.gnext.service.KeyValueServ;
+import com.rockagen.gnext.tool.Crypto;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/applicationContext.xml" })
@@ -131,7 +132,7 @@ public class ServiceTest {
 		a.setErrorCount(0);
 		a.setNickName("rockagen");
 		a.setUserName("root");
-		a.setPassWord(MDUtil.md5Hex("admin"));
+		a.setPassWord("admin");
 
 		a.setRoles(roles);
 		authUserServ.add(a);
@@ -154,5 +155,18 @@ public class ServiceTest {
 //		qp.setDetachedCriteria(dc);
 		List<AuthUser> a = authUserServ.find(qp);
 		System.out.println(a.get(0));
+		a.get(0).setPassWord(Crypto.sha1WithSalt("admin",a.get(0).getSalt()));
+	}
+	
+	
+	@Test
+	public void testPasswd(){
+/*		QueryObject qp=new QueryObject();
+		qp.setSql("from AuthUser where id<?");
+		qp.setArgs(new Object[]{new Long(10)});
+		List<AuthUser> a = authUserServ.find(qp);
+		System.out.println(a.get(0));*/
+		authUserServ.passwd(2L, "admin111", "admin");
+		
 	}
 }

@@ -15,16 +15,21 @@
  */
 package com.rockagen.gnext.service.spring;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.rockagen.commons.util.CommUtil;
 import com.rockagen.gnext.po.AuthUser;
 import com.rockagen.gnext.qo.QueryObject;
 import com.rockagen.gnext.service.AuthUserServ;
+import com.rockagen.gnext.tool.Crypto;
 
 /**
  * Implementation of the <code>AuthUserServ</code> interface
@@ -34,12 +39,28 @@ import com.rockagen.gnext.service.AuthUserServ;
 @Service("authUserServ")
 public class AuthUserServImpl extends
 		QueryObjectGenericServImpl<AuthUser, Long> implements AuthUserServ {
+	
+	
+	//~ Instance fields ==================================================
+	
+	/**
+	 * 
+	 */
+	private static final Logger log = LoggerFactory.getLogger(AuthUserServImpl.class);
 
 	@Override
-	public void passwd(final Long id, final String newPass) {
+	public void passwd(final Long id, final String oldPass,final String newPass) {
+		
 		AuthUser po = super.getGenericDao().get(id);
 		if (po != null) {
-			po.setPassWord(newPass);
+			String salt=po.getSalt();
+			String oldpassword=Crypto.sha1WithSalt(oldPass, salt);
+			// Authorized success
+			if(oldpassword.equals(po.getPassWord())){
+				newPassword(po,newPass);
+			}else{
+				log.warn("User [{}] old password is invalid,not change.",po.getUserName());
+			}
 		}
 
 	}
@@ -59,5 +80,38 @@ public class AuthUserServImpl extends
 			return null;
 		}
 		return list.get(0);
+	}
+	
+	
+	private void newPassword(final AuthUser po,final String newPass){
+			try {
+				String salt = Crypto.getHexSalt();
+				String cipher=Crypto.sha1WithSalt(newPass, salt);
+				po.setSalt(salt);
+				po.setPassWord(cipher);
+			} catch (NoSuchAlgorithmException e) {
+				log.error("{}",e.getMessage(),e);
+			} catch (NoSuchProviderException e) {
+				log.error("{}",e.getMessage(),e);
+			}
+	}
+	
+	@Override
+	public void add(AuthUser pojo) {
+		if(pojo!=null){
+			try {
+				String salt = Crypto.getHexSalt();
+				String cipher=Crypto.sha1WithSalt(pojo.getPassWord(), salt);
+				pojo.setSalt(salt);
+				pojo.setPassWord(cipher);
+				super.add(pojo);
+			} catch (NoSuchAlgorithmException e) {
+				log.error("{}",e.getMessage(),e);
+			} catch (NoSuchProviderException e) {
+				log.error("{}",e.getMessage(),e);
+			}
+			
+		}
+		
 	}
 }

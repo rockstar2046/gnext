@@ -75,7 +75,7 @@
 		class="com.rockagen.gnext.service.spring.security.extension.BasicJdbcDaoImpl">
 		<!-- Custom select query -->
 		<beans:property name="usersByUsernameQuery"
-			value="SELECT USER_NAME AS username, USER_PASSWORD as password,ENABLED as enabled,
+			value="SELECT USER_NAME AS username, PASSWORD as password,ENABLED as enabled,
 						NICK_NAME,EMAIL,LATEST_IP from AUTH_USER where USER_NAME=?" />
 		<beans:property name="authoritiesByUsernameQuery"
 			value="SELECT u.USER_NAME as username,r.NAME as authority

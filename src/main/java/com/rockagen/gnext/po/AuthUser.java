@@ -58,8 +58,12 @@ public class AuthUser{
 	private String userName;
 
 	/** The pass word. */
-	@Column(name = "USER_PASSWORD", length = 60, nullable = false)
+	@Column(name = "PASSWORD", length = 60, nullable = false)
 	private String passWord;
+	
+	/** The pass word. salt*/
+	@Column(name = "SALT", length = 60, nullable = false)
+	private String salt;
 
 	/** The enabled. */
 	@Column(name = "ENABLED", length = 1, nullable = false)
@@ -308,6 +312,14 @@ public class AuthUser{
 	 */
 	public void setLatestIp(String latestIp) {
 		this.latestIp = latestIp;
+	}
+	
+	public String getSalt() {
+		return salt;
+	}
+
+	public void setSalt(String salt) {
+		this.salt = salt;
 	}
 	
 	/**

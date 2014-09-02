@@ -13,35 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.rockagen.gnext.service;
+package com.rockagen.gnext.test;
 
-import com.rockagen.gnext.po.AuthUser;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
+import org.junit.Test;
 
+import com.rockagen.commons.util.CommUtil;
+import com.rockagen.commons.util.MDUtil;
+import com.rockagen.gnext.tool.Crypto;
 
 /**
- * AuthUser Service interface
- * 
+ *
  * @author RA
  */
-public interface AuthUserServ  extends QueryObjectGenericServ<AuthUser, Long>{
+public class ToolsTest {
+	
+	@Test
+	public void testCrypto() throws NoSuchAlgorithmException, NoSuchProviderException{
+		String password="admin123";
+		String salt=Crypto.getHexSalt();
+		System.err.println("plain: "+MDUtil.sha1Hex(password));
+		System.err.println("salt: "+salt);
+		System.out.println(Crypto.sha1WithSalt(password, salt));
+	}
 
-	
-	/**
-	 * Change the password
-	 * @param po
-	 */
-	void passwd(final Long id,final String oldPass,final String newPass);
-	
-	
-	/**
-	 * Load by user account
-	 * 
-	 * @param account
-	 *            primary key
-	 * @return AuthUser
-	 */
-	AuthUser load(final String account);
-	
-	
 }
