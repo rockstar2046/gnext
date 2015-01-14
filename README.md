@@ -1,7 +1,10 @@
-GNEXT
-=====
+#~~GNEXT~~
 
-Generic integrated base framework.
+
+~~Generic integrated base framework.~~
+
+##@Deprecated please see [security-stateless-samples][]
+
 
 ####what's this?
 Integrated some java popular frameworks and encapsulate some very efficient class
@@ -36,4 +39,5 @@ The commons-lib under version 2.0 of the [Apache License][].
 [Pull requests]: https://help.github.com/articles/using-pull-requests "Pull requests"
 [contributor guidelines]: https://github.com/rockagen/gnext/blob/master/CONTRIBUTING.md "contributor guidelines"
 [Apache License]: http://www.apache.org/licenses/LICENSE-2.0 "Apache License, Version 2.0"
+[security-stateless-samples]: https://github.com/rockagen/security-stateless-samples
 
